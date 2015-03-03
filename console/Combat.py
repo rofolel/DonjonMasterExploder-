@@ -2,7 +2,9 @@ import cmd
 import DD.person
 import DD.combat
 import sys
-
+import glob
+import pickle
+import os
 class CombatConsole(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
@@ -28,6 +30,11 @@ class CombatConsole(cmd.Cmd):
             \__/ /_/\_\ .__/|_|\___/ \__,_|\___|_| V1
                       |_|
         """,color.BLUE)
+        for name in glob.glob('./save/*'):
+            obj = pickle.load(file(name))
+            if isinstance(obj,DD.person.Player):
+                self.players.append(obj)
+
 
 
 
@@ -36,7 +43,7 @@ class CombatConsole(cmd.Cmd):
     def emptyline(self):
         print "currently playing: %s"%(self.current.name)
 
-    def do_add(self, line):
+    def do_player(self, line):
         args = line.split()
         if len(args) is not 3:
             print "bad syntax : add name life initiative"
@@ -54,10 +61,10 @@ class CombatConsole(cmd.Cmd):
 
 
         for player in self.players:
-            print printout(template.format(player.name,player.life,player.initative), player.color)
+            print printout(template.format(player.name,player.life,player.initiative), player.color)
 
         for player in self.monster:
-            print printout(template.format(player.name,player.life,player.initative), player.color)
+            print printout(template.format(player.name,player.life,player.initiative), player.color)
 
     def do_delete(self,line):
         self.monster = list()
@@ -72,6 +79,13 @@ class CombatConsole(cmd.Cmd):
                 break
         if not set:
             print "invalid player"
+
+    def do_save(self,line):
+        for name in glob.glob('./save/*'):
+            os.remove(name)
+        for player in self.players:
+            player.serialize()
+
     def complete_remove(self, text, line, begidx, endidx):
         completions = []
         for i in self.players: completions.append(i.name)
@@ -96,8 +110,13 @@ class CombatConsole(cmd.Cmd):
 
             print "added %i %s"%(i , args[0])
     def do_battle(self,line):
-        self.battle = DD.combat.battle(self.monster+ self.players)
 
+
+        self.battle = DD.combat.battle(self.monster+ self.players)
+        self.battle.generateCombatOrder()
+    def do_exit(self,line):
+        self.do_save("")
+        sys.exit(-1)
 
 
 
