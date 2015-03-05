@@ -114,13 +114,58 @@ class CombatConsole(cmd.Cmd):
 
         self.battle = DD.combat.battle(self.monster+ self.players)
         self.battle.generateCombatOrder()
+        self.current = self.battle.participants[0]
+        self.prompt = "[%s] - "%(printout(self.current.name,self.current.color))
+
+
     def do_exit(self,line):
         self.do_save("")
         sys.exit(-1)
 
+    def do_hit(self,s):
+        args = s.split()
+        if not self.battle:
+            print "No battle yet moron try thinking I HATE YOU"
+        elif len(args) is 2 :
+            if 0 <= int(args[0]) < len(self.battle.participants) :
+                    print "%s hit %s for %i damages"%(printout(self.current.name,self.current.color),
+                                                printout(self.battle.participants[int(args[0])].name,
+                                                         self.battle.participants[int(args[0])].color),
+                                                int(args[1]))
+                    self.battle.participants[int(args[0])].life += -int(args[1])
+                    self.battle.hits.append(DD.combat.battle.hit(args[1],printout(self.current.name,self.current.color),printout(self.battle.participants[int(args[0])].name,
+                                                         self.battle.participants[int(args[0])].color)))
+            else:
+                print 'nem'
+        else:
+            print "pute"
+
+
+    def do_historic(self,line):
+        if not self.battle:
+            print "No battle yet moron try thinking I HATE YOU"
+        else :
+            for i in self.battle.hits:
+                print i
 
 
 
+
+    def do_next(self,line):
+        if not self.battle:
+            print "No battle yet moron try thinking I HATE YOU"
+        else:
+            self.current = self.battle.popCurrent()
+            self.prompt = "[%s] - "%(printout(self.current.name,self.current.color))
+    def do_order(self,line):
+        if not self.battle:
+            print "No battle yet moron try thinking I HATE YOU"
+        else:
+            print 'BATTLE ORDER'
+            incr = 0
+            for i in self.battle.participants:
+                print printout("%i) %s"%(incr,i.name), i.color)
+                incr += 1
 
 
 

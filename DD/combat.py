@@ -7,6 +7,8 @@ class battle(object):
             self.value = value
             self.attacker = attacker
             self.attackee = attackee
+        def __str__(self):
+            return "%s hit %s for %i"%(self.attacker, self.attackee,int(self.value))
 
 
     def __init__(self,participants):
@@ -15,8 +17,9 @@ class battle(object):
         self.current = 0
     def popCurrent(self):
         self.current += 1
-        if self.current > len(self.participants):
+        if self.current >= len(self.participants):
             self.current = 0
+            print "NEW TURN"
         return self.participants[self.current]
 
 
@@ -38,7 +41,7 @@ class battle(object):
             tmp.append(roll(i))
         self.participants = list()
         tmp.sort(key = get)
-        incr = 1
+        incr = 0
         for i in tmp :
             self.participants.append(i.obj)
             print console.Combat.printout("%i) %s"%(incr,i.obj.name), i.obj.color)
